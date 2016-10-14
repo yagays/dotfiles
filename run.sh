@@ -1,3 +1,3 @@
-ln -s ./.zshrc $HOME/.zshrc
-ln -s ./.emacs $HOME/.emacs
-ln -s ./.screenrc $HOME/.screenrc
+ln -s `pwd`/.zshrc $HOME/.zshrc
+ln -s `pwd`/.emacs $HOME/.emacs
+ln -s `pwd`/.screenrc $HOME/.screenrc

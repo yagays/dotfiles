@@ -227,6 +227,7 @@ alias op='open .'
 alias today='date +%Y%m%d'
 alias nkf2utf8='nkf -w'
 alias jless='jq . -C | less -R'
+alias tree='tree -N'
 
 # rbenv
 export PATH="$HOME/.rbenv/bin:$PATH"

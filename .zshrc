@@ -4,9 +4,6 @@ export MANPATH=$HOME/local/share/man:$MANPATH
 
 export EDITOR=emacs
 
-export PERL_CPANM_OPT="--local-lib=~/.cpanm/"
-export PERL5LIB="$HOME/.cpanm/lib/perl5:$PERL5LIB"
-
 export LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=/usr/local/include:$C_INCLUDE_PATH
@@ -229,10 +226,6 @@ alias nkf2utf8='nkf -w'
 alias jless='jq . -C | less -R'
 alias tree='tree -N'
 
-# rbenv
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init - zsh)"
-
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
@@ -243,7 +236,3 @@ if [ -f /usr/local/bin/virtualenvwrapper.sh ]; then
     export WORKON_HOME=$HOME/.virtualenvs
     source /usr/local/bin/virtualenvwrapper.sh
 fi
-
-# Golang
-export GOPATH=~/.go
-export PATH=$GOPATH/bin:$PATH

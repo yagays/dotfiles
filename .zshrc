@@ -37,6 +37,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:descriptions' format '%B%d%b'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:warnings' format 'No matches'
+export WORDCHARS='*?_.[]~-=&;!#$%^(){}<>' 
 
 # History
 export LANG=ja_JP.UTF-8

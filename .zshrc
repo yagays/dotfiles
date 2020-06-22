@@ -131,9 +131,6 @@ alias rm='rm -i'
 alias dirs='dirs -v'
 alias pd='popd'
 alias b='cd ../'
-alias s='screen'
-alias v='vim'
-alias r='rails'
 alias e='emacs'
 alias sless='less -S'
 alias lasth='last | head'
@@ -143,11 +140,13 @@ alias today='date +%Y%m%d'
 alias nkf2utf8='nkf -w'
 alias jless='jq . -C | less -R'
 alias tree='tree -N'
+alias i='ipython'
 
 # pyenv
-# export PYENV_ROOT="$HOME/.pyenv"
-# export PATH="$PYENV_ROOT/bin:$PATH"
-# eval "$(pyenv init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then

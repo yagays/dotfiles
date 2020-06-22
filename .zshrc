@@ -20,6 +20,8 @@ setopt pushd_silent
 setopt pushd_to_home
 
 # Completion
+autoload -U compinit
+compinit
 LISTMAX=0
 setopt complete_aliases
 setopt complete_in_word
@@ -73,7 +75,7 @@ fi
 # Misc
 umask 022
 limit coredumpsize 0
-stty erase '^h'
+# stty erase '^h'
 stty kill '^g'
 stty stop 'undef'
 
@@ -94,7 +96,7 @@ autoload -U tetris; zle -N tetris
 # Abbreviation "{{{1
 typeset -A myAbbrev
 myAbbrev=(
-"L" "| less"p
+"L" "| less"
 "G" "| grep"
 "H" "| head"
 "T" "| tail"
@@ -173,6 +175,7 @@ zinit light zsh-users/zsh-autosuggestions
 zinit light zsh-users/zsh-completions
 zinit light zdharma/fast-syntax-highlighting
 zinit light zdharma/history-search-multi-word
+zinit light mollifier/cd-gitroot
 
 zinit light mollifier/anyframe
 bindkey '^t' anyframe-widget-cdr

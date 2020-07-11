@@ -181,8 +181,14 @@ zinit light mollifier/anyframe
 bindkey '^t' anyframe-widget-cdr
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
+zstyle ':chpwd:*' recent-dirs-max 1000
+zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/chpwd-recent-dirs"
 
 ### End of Zinit's installer chunk
 
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/yag_ays/dev/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/yag_ays/dev/google-cloud-sdk/path.zsh.inc'; fi
 
-
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc'; fi
+export PATH=$PATH:~/.nodebrew/current/bin/

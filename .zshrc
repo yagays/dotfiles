@@ -41,7 +41,7 @@ export WORDCHARS='*?_.[]~-=&;!#$%^(){}<>'
 
 # History
 export LANG=ja_JP.UTF-8
-HISTFILE=$HOME/.zsh-history
+HISTFILE=$HOME/.zsh_history
 HISTSIZE=1000000
 SAVEHIST=1000000
 setopt append_history

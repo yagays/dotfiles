@@ -51,6 +51,14 @@ setopt hist_reduce_blanks
 setopt hist_save_nodups
 setopt share_history
 
+autoload -U  up-line-or-beginning-search
+zle      -N  up-line-or-beginning-search
+bindkey '^P' up-line-or-beginning-search
+
+autoload -U  down-line-or-beginning-search
+zle      -N  down-line-or-beginning-search
+bindkey '^N' down-line-or-beginning-search
+
 # Prompt
 autoload -U colors; colors
 setopt prompt_subst

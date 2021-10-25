@@ -145,17 +145,30 @@ alias sless='less -S'
 alias lasth='last | head'
 alias grep='grep --color=auto'
 alias op='open .'
+alias ta='tmux attach'
+alias tn='tmux new'
 alias today='date +%Y%m%d'
 alias nkf2utf8='nkf -w'
 alias jless='jq . -C | less -R'
 alias tree='tree -N'
 alias i='ipython'
+alias c='code .'
+alias hb='hub browse'
+alias p='poetry'
+alias pr='poetry run'
+alias pri='poetry run ipython'
+alias prodigy="python -m prodigy"
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
 export VIRTUAL_ENV_DISABLE_PROMPT=1
+export LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
+export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
+
+# poetry
+export PATH=$PATH:~/.poetry/bin/
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then

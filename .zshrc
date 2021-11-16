@@ -172,7 +172,7 @@ export PATH=$PATH:~/.poetry/bin/
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
+    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
     command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
     command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
         print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
@@ -194,8 +194,8 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=5'
 zinit light zsh-users/zsh-autosuggestions
 
 zinit light zsh-users/zsh-completions
-zinit light zdharma/fast-syntax-highlighting
-zinit light zdharma/history-search-multi-word
+zinit light zdharma-continuum/fast-syntax-highlighting
+zinit light zdharma-continuum/history-search-multi-word
 zinit light mollifier/cd-gitroot
 
 zinit light mollifier/anyframe

@@ -11,6 +11,9 @@ export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
 # for ls in macOS
 export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
 
+# for Homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Directory
 setopt auto_cd
 setopt auto_pushd
@@ -169,6 +172,7 @@ export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
 
 # poetry
 export PATH=$PATH:~/.local/bin/
+export PATH="$HOME/.poetry/bin:$PATH"
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
@@ -290,7 +294,8 @@ zle -N fzf-git-checkout
 bindkey "^g^o" fzf-git-checkout
 
 function fzf-gh-browse() {
-  gh browse
+    gh browse
+    zle reset-prompt
 }
 zle -N fzf-gh-browse
 bindkey "^g^w" fzf-gh-browse

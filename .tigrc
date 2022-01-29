@@ -1,0 +1,89 @@
+# main view の左端にコミットIDを表示する
+set main-view = id date author:email-user commit-title:graph=yes,refs=yes
+
+# utf-8 文字で画面描画する (~でトグル)
+set line-graphics = utf-8
+
+# マージ diff を表示する
+set diff-options = -m --first-parent
+
+# 差分表示に diff-highlight を使う (要 tig 2.2.1 以降. diff-highlight が $PATH にあること)
+set diff-highlight = true
+
+# カラー設定
+# diff-view で境界が見やすくなるように変更
+color  diff-header       default magenta
+color  diff-chunk        black   white
+
+# g をファイル先頭に移動に変更、 view-grep を再割当て
+bind generic g      move-first-line
+bind generic E      view-grep
+
+# G でファイル末尾に移動 (default: :toggle commit-title-graph)
+bind generic G      move-last-line
+bind main    G      move-last-line
+
+# Alt-g で :toggle commit-title-graph
+bind main    <Esc>g :toggle commit-title-graph
+
+# n / p を上下移動に割り当て (default: find-next / view-pager)
+bind generic n      move-down
+bind generic p      move-up
+
+# n / p で単位ごとの移動
+bind diff    n      :/^@@
+bind diff    p      :?^@@
+bind diff    <Esc>n :/^diff --(git|cc)
+bind diff    <Esc>p :?^diff --(git|cc)
+bind stage   n      :/^@@
+bind stage   p      :?^@@
+bind stage   <Esc>n :/^diff --(git|cc)
+bind stage   <Esc>p :?^diff --(git|cc)
+bind pager   n      :/^@@
+bind pager   p      :?^@@
+bind pager   <Esc>n :/^diff --(git|cc)
+bind pager   <Esc>p :?^diff --(git|cc)
+bind log     n      :/^commit
+bind log     p      :?^commit
+
+# 元の n / p を別に割り当て
+bind generic V      view-pager
+bind generic <Ctrl-s> find-next # 要 stty stop undef
+bind generic <Ctrl-r> find-prev
+
+# Ctrl-v, Alt-v でページ単位移動 (ターミナルに食われるので Ctrl-v は2度押しが必要)
+bind generic <Ctrl-v> move-page-down
+bind generic <Esc>v move-page-up
+
+# Ctrl-f, Ctrl-b で左右スクロール
+bind generic <Ctrl-f> scroll-right
+bind generic <Ctrl-b> scroll-left
+
+# Ctrl-g でリフレッシュ
+bind generic <Ctrl-g> refresh
+
+# F で fetch (default: :toggle file-name / :toggle commit-title-refs)
+bind generic F      ?git fetch %(remote)
+bind main    F      ?git fetch %(remote)
+
+# Alt-f で :toggle file-name / :toggle commit-title-refs
+bind generic <Esc>f :toggle file-name
+bind main    <Esc>f :toggle commit-title-refs
+
+# U で pull
+bind generic U      ?git pull %(remote)
+
+# Alt-u で該当ブランチを更新
+bind main    <Esc>u ?sh -c "git checkout %(branch) && git pull %(remote) --ff-only && git checkout -"
+bind diff    <Esc>u ?sh -c "git checkout %(branch) && git pull %(remote) --ff-only && git checkout -"
+bind refs    <Esc>u ?sh -c "git checkout %(branch) && git pull %(remote) --ff-only && git checkout -"
+
+# P で remote への push
+bind generic P      ?git push -u %(remote) %(repo:head)
+
+# I で rebase -i
+bind main    I      ?git rebase -i %(branch)
+bind diff    I      ?git rebase -i %(branch)
+bind refs    I      ?git rebase -i %(branch)
+bind main    <Esc>i ?git rebase -i %(commit)
+bind diff    <Esc>i ?git rebase -i %(commit)

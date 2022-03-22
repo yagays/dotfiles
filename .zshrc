@@ -161,6 +161,7 @@ alias p='poetry'
 alias pr='poetry run'
 alias pri='poetry run ipython'
 alias prodigy="python -m prodigy"
+alias t='tmux attach || tmux new'
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"

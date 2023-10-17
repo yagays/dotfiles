@@ -1,0 +1,11 @@
+# guio
+cask '1password'
+cask "appcleaner"
+cask "authy"
+cask "docker"
+cask "notion"
+cask "google-chrome"
+cask "google-japanese-ime"
+cask "iterm2"
+cask "karabiner-elements"
+cask "visual-studio-code"

@@ -1,6 +1,6 @@
 
 brew_install:
-	$(PWD)/brew/setup.sh
+	bash $(PWD)/brew/setup.sh
 
 brew_cui:
 	brew bundle --verbose --no-lock --file=$(PWD)/brew/config.d/Brewfile

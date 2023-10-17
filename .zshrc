@@ -1,9 +1,10 @@
 # Path
 export PATH=$HOME/local/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 export MANPATH=$HOME/local/share/man:$MANPATH
 export EDITOR=emacs
 
-export LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/lib:/opt/homebrew/lib:$LIBRARY_PATH
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export C_INCLUDE_PATH=/usr/local/include:$C_INCLUDE_PATH
 export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
@@ -162,6 +163,7 @@ alias pr='poetry run'
 alias pri='poetry run ipython'
 alias prodigy="python -m prodigy"
 alias t='tmux attach || tmux new'
+alias sed='gsed'
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -171,8 +173,9 @@ export VIRTUAL_ENV_DISABLE_PROMPT=1
 export LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
 export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
 
-# poetry
-export PATH="$HOME/.poetry/bin:$PATH"
+# llvm
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib":$LDFLAGS
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include":$CPPFLAGS
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then

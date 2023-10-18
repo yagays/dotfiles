@@ -1,5 +1,6 @@
 # cui
 brew "coreutils"
+brew "direnv"
 brew "emacs"
 brew "gcc"
 brew "gh"

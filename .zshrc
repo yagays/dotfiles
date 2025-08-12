@@ -164,6 +164,9 @@ alias pri='poetry run ipython'
 alias prodigy="python -m prodigy"
 alias t='tmux attach || tmux new'
 alias sed='gsed'
+alias cc="claude"
+alias yolo="claude --dangerously-skip-permissions"
+alias gl='git com && git pl'
 
 # pyenv
 export PYENV_ROOT="$HOME/.pyenv"
@@ -220,8 +223,13 @@ if [ -f '/Users/yag_ays/dev/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/yag
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc'; fi
 
-export PATH=$PATH:~/.nodebrew/current/bin
-export NODE_PATH=~/.nodebrew/current/lib/node_modules
+source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
+source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
+
+# Node
+# export PATH=$PATH:~/.nodebrew/current/bin
+# export NODE_PATH=~/.nodebrew/current/lib/node_modules
+# eval "$(nodenv init -)"
 
 # export JAVA_HOME=`/usr/libexec/java_home -v 14`
 
@@ -281,6 +289,9 @@ compdef gx-complete gx
 # direnv
 eval "$(direnv hook zsh)"
 
+# Go
+export GOPATH=$HOME/.go
+export PATH=$GOPATH/bin:$PATH
 
 # Rust
 export PATH=$PATH:~/.cargo/bin
@@ -303,6 +314,13 @@ function fzf-gh-browse() {
 zle -N fzf-gh-browse
 bindkey "^g^w" fzf-gh-browse
 
+function fzf-gh-open-pr() {
+    gh pr view --web
+    zle reset-prompt
+}
+zle -N fzf-gh-open-pr
+bindkey "^g^r" fzf-gh-open-pr
+
 function ghq-fzf() {
   local src=$(ghq list | fzf --preview "bat --color=always --style=header,grid --line-range :80 $(ghq root)/{}/README.*")
   if [ -n "$src" ]; then
@@ -313,3 +331,45 @@ function ghq-fzf() {
 }
 zle -N ghq-fzf
 bindkey '^]' ghq-fzf
+
+# pnpm
+export PNPM_HOME="/Users/yag_ays/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+user_name=$(git config user.name)
+fmt="\
+%(if:equals=$user_name)%(authorname)%(then)%(color:default)%(else)%(color:brightred)%(end)%(refname:short)|\
+%(committerdate:relative)|\
+%(subject)"
+function select-git-branch-friendly() {
+  selected_branch=$(
+    git branch --sort=-committerdate --format=$fmt --color=always \
+    | column -ts'|' \
+    | fzf --ansi --exact --preview='git log --oneline --graph --decorate --color=always -50 {+1}' \
+    | awk '{print $1}' \
+  )
+  BUFFER="${LBUFFER}${selected_branch}${RBUFFER}"
+  CURSOR=$#LBUFFER+$#selected_branch
+  zle redisplay
+}
+zle -N select-git-branch-friendly
+bindkey '^g^b' select-git-branch-friendly
+
+
+# gemini cli
+export GOOGLE_CLOUD_PROJECT=ubie-local-svc
+export GOOGLE_GENAI_USE_VERTEXAI=true
+export GOOGLE_CLOUD_LOCATION=us-central1
+
+# bun completions
+[ -s "/Users/yag_ays/.bun/_bun" ] && source "/Users/yag_ays/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+alias claude="/Users/yag_ays/.claude/local/claude"

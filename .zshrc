@@ -168,14 +168,6 @@ alias cc="claude"
 alias yolo="claude --dangerously-skip-permissions"
 alias gl='git com && git pl'
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init --path)"
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-export LDFLAGS="-L/usr/local/opt/zlib/lib -L/usr/local/opt/bzip2/lib"
-export CPPFLAGS="-I/usr/local/opt/zlib/include -I/usr/local/opt/bzip2/include"
-
 # llvm
 export LDFLAGS="-L/opt/homebrew/opt/llvm/lib":$LDFLAGS
 export CPPFLAGS="-I/opt/homebrew/opt/llvm/include":$CPPFLAGS
@@ -216,23 +208,6 @@ zstyle ':chpwd:*' recent-dirs-max 1000
 zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/chpwd-recent-dirs"
 
 ### End of Zinit's installer chunk
-
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/Users/yag_ays/dev/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/yag_ays/dev/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/yag_ays/dev/google-cloud-sdk/completion.zsh.inc'; fi
-
-source "$(brew --prefix)/share/google-cloud-sdk/path.zsh.inc"
-source "$(brew --prefix)/share/google-cloud-sdk/completion.zsh.inc"
-
-# Node
-# export PATH=$PATH:~/.nodebrew/current/bin
-# export NODE_PATH=~/.nodebrew/current/lib/node_modules
-# eval "$(nodenv init -)"
-
-# export JAVA_HOME=`/usr/libexec/java_home -v 14`
-
 
 FZF_GH_PR_EXTRA_ARG=${FZF_GH_PR_EXTRA_ARG:-''}
 FZF_GH_PR_BINDKEY=${FZF_GH_PR_BINDKEY:-'^g^p'}
@@ -285,9 +260,6 @@ function gx() {
   gcloud-activate "${name}" "${project}"
 }
 compdef gx-complete gx
-
-# direnv
-eval "$(direnv hook zsh)"
 
 # Go
 export GOPATH=$HOME/.go

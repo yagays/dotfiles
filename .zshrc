@@ -332,14 +332,6 @@ function ghq-fzf() {
 zle -N ghq-fzf
 bindkey '^]' ghq-fzf
 
-# pnpm
-export PNPM_HOME="/Users/yag_ays/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
 user_name=$(git config user.name)
 fmt="\
 %(if:equals=$user_name)%(authorname)%(then)%(color:default)%(else)%(color:brightred)%(end)%(refname:short)|\
@@ -358,12 +350,6 @@ function select-git-branch-friendly() {
 }
 zle -N select-git-branch-friendly
 bindkey '^g^b' select-git-branch-friendly
-
-
-# gemini cli
-export GOOGLE_CLOUD_PROJECT=ubie-local-svc
-export GOOGLE_GENAI_USE_VERTEXAI=true
-export GOOGLE_CLOUD_LOCATION=us-central1
 
 # bun completions
 [ -s "/Users/yag_ays/.bun/_bun" ] && source "/Users/yag_ays/.bun/_bun"

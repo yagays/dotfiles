@@ -1,6 +1,6 @@
 [user]
 	name = Yuki Okuda
-	email = y.okuda@dr-ubie.com
+	email = yanagi.ayase@gmail.com
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f

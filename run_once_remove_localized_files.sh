@@ -1,3 +1,4 @@
+#!/bin/bash
 # remove all .localized files from home directory
 rm ~/Applications/.localized
 rm ~/Documents/.localized

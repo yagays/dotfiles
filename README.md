@@ -5,7 +5,7 @@ Managed by [chezmoi](https://www.chezmoi.io/).
 ## Installation
 
 ```sh
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply yagays
+sh -c "$(curl -fsLS get.chezmoi.io/lb)" -- init --apply yagays
 ```
 
 ## Usage

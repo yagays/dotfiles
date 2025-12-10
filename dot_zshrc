@@ -1,19 +1,47 @@
+# Homebrew (must be first to set up base paths)
+if [[ -f /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # Path
-export PATH=$HOME/local/bin:$PATH
-export PATH=$HOME/.local/bin:$PATH
-export MANPATH=$HOME/local/share/man:$MANPATH
+typeset -U path
+path=(
+  $HOME/.local/bin
+  /usr/local/opt/coreutils/libexec/gnubin
+  $HOME/.go/bin
+  $HOME/.cargo/bin
+  $HOME/.bun/bin
+  $HOME/.antigravity/antigravity/bin
+  $path
+)
+
+# Man Path
+typeset -U manpath
+manpath=(
+  $HOME/.local/share/man
+  $manpath
+)
+
+# Library Path
+export LIBRARY_PATH="/usr/local/lib:/opt/homebrew/lib:$LIBRARY_PATH"
+export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+
+# Include Path
+export C_INCLUDE_PATH="/usr/local/include:$C_INCLUDE_PATH"
+export CPLUS_INCLUDE_PATH="/usr/local/include:$CPLUS_INCLUDE_PATH"
+
+# LLVM
+export LDFLAGS="-L/opt/homebrew/opt/llvm/lib:$LDFLAGS"
+export CPPFLAGS="-I/opt/homebrew/opt/llvm/include:$CPPFLAGS"
+
+# Go
+export GOPATH="$HOME/.go"
+
+# Bun
+export BUN_INSTALL="$HOME/.bun"
+
+# Editor
 export EDITOR=emacs
-
-export LIBRARY_PATH=/usr/local/lib:/opt/homebrew/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-export C_INCLUDE_PATH=/usr/local/include:$C_INCLUDE_PATH
-export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
-
-# for ls in macOS
-export PATH=/usr/local/opt/coreutils/libexec/gnubin:$PATH
-
-# for Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # Directory
 setopt auto_cd
@@ -148,7 +176,6 @@ alias e='emacs'
 alias sless='less -S'
 alias lasth='last | head'
 alias grep='grep --color=auto'
-# alias op='open .'
 alias ta='tmux attach'
 alias tn='tmux new'
 alias today='date +%Y%m%d'
@@ -167,10 +194,6 @@ alias sed='gsed'
 alias cc="claude"
 alias yolo="claude --dangerously-skip-permissions"
 alias gl='git com && git pl'
-
-# llvm
-export LDFLAGS="-L/opt/homebrew/opt/llvm/lib":$LDFLAGS
-export CPPFLAGS="-I/opt/homebrew/opt/llvm/include":$CPPFLAGS
 
 ### Added by Zinit's installer
 if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
@@ -235,7 +258,6 @@ function fzf-gh-pr-selection() {
 }
 zle -N fzf-gh-pr-selection
 bindkey $FZF_GH_PR_BINDKEY fzf-gh-pr-selection
-export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 # GCPのプロジェクト切り替え
 # https://qiita.com/sonots/items/906798c408132e26b41c
@@ -260,13 +282,6 @@ function gx() {
   gcloud-activate "${name}" "${project}"
 }
 compdef gx-complete gx
-
-# Go
-export GOPATH=$HOME/.go
-export PATH=$GOPATH/bin:$PATH
-
-# Rust
-export PATH=$PATH:~/.cargo/bin
 
 # fbr - checkout git branch
 function fzf-git-checkout() {
@@ -324,12 +339,4 @@ zle -N select-git-branch-friendly
 bindkey '^g^b' select-git-branch-friendly
 
 # bun completions
-[ -s "/Users/yag_ays/.bun/_bun" ] && source "/Users/yag_ays/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-
-# Added by Antigravity
-export PATH="/Users/yag_ays/.antigravity/antigravity/bin:$PATH"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"

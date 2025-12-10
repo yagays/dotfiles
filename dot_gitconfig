@@ -18,7 +18,7 @@
 [pull]
 	ff = only
 [ghq]
-	root=~/.ghq	
+	root=~/.ghq
 [credential]
 	helper = osxkeychain
 [column]

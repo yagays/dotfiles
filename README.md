@@ -1,15 +1,52 @@
-# How to install (UNIX/Linux)
+# dotfiles
 
-## Clone dotfiles.
+Managed by [chezmoi](https://www.chezmoi.io/).
 
-```
-$ git clone https://github.com/yagays/dotfiles.git /path/to/dotfiles
+## Installation
+
+```sh
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply yagays
 ```
 
-## Create symlinks to dotfiles under the home directory.
+## Usage
 
+### Apply dotfiles
+
+```sh
+chezmoi apply
 ```
-$ ln -s /path/to/dotfiles/.zshrc $HOME/.zshrc
-$ ln -s /path/to/dotfiles/.emacs $HOME/.emacs
-$ ln -s /path/to/dotfiles/.screenrc $HOME/.screenrc
+
+### Edit a dotfile
+
+```sh
+chezmoi edit ~/.zshrc
 ```
+
+### Update from remote repository
+
+```sh
+chezmoi update
+```
+
+### Add a new dotfile
+
+```sh
+chezmoi add ~/.config/xxx
+```
+
+### List managed files
+
+```sh
+chezmoi managed
+```
+
+## Managed files
+
+- `.zshrc`
+- `.emacs`
+- `.gitconfig`
+- `.screenrc`
+- `.tigrc`
+- `.tmux.conf`
+- `.claude/`
+- `.config/`

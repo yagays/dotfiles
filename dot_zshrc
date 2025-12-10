@@ -41,7 +41,7 @@ zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:descriptions' format '%B%d%b'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*:warnings' format 'No matches'
-export WORDCHARS='*?_.[]~-=&;!#$%^(){}<>' 
+export WORDCHARS='*?_.[]~-=&;!#$%^(){}<>'
 
 # History
 export LANG=ja_JP.UTF-8
@@ -148,7 +148,7 @@ alias e='emacs'
 alias sless='less -S'
 alias lasth='last | head'
 alias grep='grep --color=auto'
-alias op='open .'
+# alias op='open .'
 alias ta='tmux attach'
 alias tn='tmux new'
 alias today='date +%Y%m%d'
@@ -330,4 +330,6 @@ bindkey '^g^b' select-git-branch-friendly
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-alias claude="/Users/yag_ays/.claude/local/claude"
+
+# Added by Antigravity
+export PATH="/Users/yag_ays/.antigravity/antigravity/bin:$PATH"

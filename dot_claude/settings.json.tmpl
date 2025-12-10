@@ -1,0 +1,15 @@
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://bernese:4317",
+    "OTEL_RESOURCE_ATTRIBUTES": "host.name={{ .chezmoi.hostname }}"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.js"
+  },
+  "alwaysThinkingEnabled": true
+}

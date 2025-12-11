@@ -2,8 +2,6 @@
 .devcontainer
 .DS_Store
 
-# dwh-dbt
-.user.yml
+# Claude Code
 **/.claude/settings.local.json
-
 **/CLAUDE.local.md

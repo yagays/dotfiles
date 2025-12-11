@@ -39,14 +39,3 @@ chezmoi add ~/.config/xxx
 ```sh
 chezmoi managed
 ```
-
-## Managed files
-
-- `.zshrc`
-- `.emacs`
-- `.gitconfig`
-- `.screenrc`
-- `.tigrc`
-- `.tmux.conf`
-- `.claude/`
-- `.config/`

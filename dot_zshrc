@@ -340,3 +340,6 @@ bindkey '^g^b' select-git-branch-friendly
 
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# Load local machine-specific settings (not managed by chezmoi)
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

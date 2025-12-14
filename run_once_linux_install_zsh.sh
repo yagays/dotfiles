@@ -40,6 +40,8 @@ if ! command -v gh &> /dev/null; then
         && sudo apt update \
         && sudo apt install gh -y
     echo "gh installed successfully."
+    echo "Running gh auth login..."
+    gh auth login
 else
     echo "gh is already installed."
 fi

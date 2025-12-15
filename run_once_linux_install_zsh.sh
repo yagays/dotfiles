@@ -55,7 +55,7 @@ fi
 if ! command -v claude &> /dev/null; then
     echo "Installing Claude Code CLI..."
     mkdir -p "$HOME/.local/bin"
-    curl -fsSL https://claude.ai/install.sh | sh -s -- --yes --prefix "$HOME/.local"
+    curl -fsSL https://claude.ai/install.sh | bash -s -- --yes --prefix "$HOME/.local"
     echo "Claude Code CLI installed successfully."
 else
     echo "Claude Code CLI is already installed."

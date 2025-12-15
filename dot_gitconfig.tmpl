@@ -19,8 +19,10 @@
 	ff = only
 [ghq]
 	root=~/.ghq
+{{ if eq .chezmoi.os "darwin" -}}
 [credential]
 	helper = osxkeychain
+{{ end -}}
 [column]
 	ui = auto
 [branch]

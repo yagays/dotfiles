@@ -1,0 +1,21 @@
+# Claude Code - ローカル専用ファイル
+.claude/projects/
+.claude/__store.db
+.claude/file-history/
+.claude/todos/
+.claude/history.jsonl
+.claude/shell-snapshots/
+.claude/debug/
+.claude/statsig/
+.claude/.DS_Store
+.claude/plugins/
+.claude/ide/
+
+# OS別スクリプトの除外
+{{ if ne .chezmoi.os "darwin" }}
+run_once_darwin_install_packages.sh
+run_once_darwin_remove_localized_files.sh
+{{ end }}
+{{ if ne .chezmoi.os "linux" }}
+run_once_linux_install_zsh.sh
+{{ end }}

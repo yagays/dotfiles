@@ -72,4 +72,14 @@ if command -v gh &> /dev/null && ! gh auth status &> /dev/null; then
     gh auth login
 fi
 
+# Install Claude Code CLI
+if ! command -v claude &> /dev/null; then
+    echo "Installing Claude Code CLI..."
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL https://claude.ai/install.sh | sh -s -- --yes --prefix "$HOME/.local"
+    echo "Claude Code CLI installed successfully."
+else
+    echo "Claude Code CLI is already installed."
+fi
+
 echo "macOS package installation completed."

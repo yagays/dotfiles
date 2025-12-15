@@ -45,3 +45,13 @@ if ! command -v gh &> /dev/null; then
 else
     echo "gh is already installed."
 fi
+
+# Install Claude Code CLI
+if ! command -v claude &> /dev/null; then
+    echo "Installing Claude Code CLI..."
+    mkdir -p "$HOME/.local/bin"
+    curl -fsSL https://claude.ai/install.sh | sh -s -- --yes --prefix "$HOME/.local"
+    echo "Claude Code CLI installed successfully."
+else
+    echo "Claude Code CLI is already installed."
+fi

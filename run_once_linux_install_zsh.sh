@@ -1,6 +1,11 @@
 #!/bin/bash
 # Install zsh and fzf on Linux if not already installed
 
+# Exit if not Linux
+if [[ "$(uname)" != "Linux" ]]; then
+    exit 0
+fi
+
 PACKAGES=""
 
 if ! command -v zsh &> /dev/null; then

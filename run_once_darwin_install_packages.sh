@@ -1,6 +1,11 @@
 #!/bin/bash
 # Install Homebrew and packages on macOS
 
+# Exit if not macOS
+if [[ "$(uname)" != "Darwin" ]]; then
+    exit 0
+fi
+
 # Install Xcode Command Line Tools if not installed
 if ! xcode-select -p &> /dev/null; then
     echo "Installing Xcode Command Line Tools..."

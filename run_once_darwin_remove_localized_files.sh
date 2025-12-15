@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# Exit if not macOS
+if [[ "$(uname)" != "Darwin" ]]; then
+    exit 0
+fi
+
 # remove all .localized files from home directory
 rm -f ~/Applications/.localized
 rm -f ~/Documents/.localized

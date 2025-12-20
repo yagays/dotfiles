@@ -1,3 +1,6 @@
+# リポジトリ専用ファイル（ホームディレクトリに展開しない）
+README.md
+
 # Claude Code - ローカル専用ファイル
 .claude/projects/
 .claude/__store.db

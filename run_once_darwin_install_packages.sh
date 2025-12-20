@@ -33,6 +33,7 @@ fi
 
 # Packages to install via brew
 BREW_PACKAGES=(
+    1password-cli
     awscli
     chezmoi
     emacs

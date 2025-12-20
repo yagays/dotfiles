@@ -1,11 +1,14 @@
 #!/bin/bash
-# Install zsh and fzf on Linux if not already installed
+# Install packages on Linux
 
 # Exit if not Linux
 if [[ "$(uname)" != "Linux" ]]; then
     exit 0
 fi
 
+# ============================================================
+# APT packages
+# ============================================================
 PACKAGES=""
 
 if ! command -v zsh &> /dev/null; then
@@ -16,13 +19,29 @@ if ! command -v fzf &> /dev/null; then
     PACKAGES="$PACKAGES fzf"
 fi
 
+if ! command -v tig &> /dev/null; then
+    PACKAGES="$PACKAGES tig"
+fi
+
+if ! command -v tree &> /dev/null; then
+    PACKAGES="$PACKAGES tree"
+fi
+
+if ! command -v unzip &> /dev/null; then
+    PACKAGES="$PACKAGES unzip"
+fi
+
 if [ -n "$PACKAGES" ]; then
     echo "Installing:$PACKAGES"
     sudo apt update && sudo apt install -y $PACKAGES
     echo "Installation completed."
 else
-    echo "zsh and fzf are already installed."
+    echo "APT packages are already installed."
 fi
+
+# ============================================================
+# External packages (installed via official scripts/repos)
+# ============================================================
 
 # Install uv (Python package manager)
 if ! command -v uv &> /dev/null; then
@@ -51,6 +70,34 @@ else
     echo "gh is already installed."
 fi
 
+# Install 1Password CLI
+if ! command -v op &> /dev/null; then
+    echo "Installing 1Password CLI..."
+    curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
+        sudo gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg && \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/$(dpkg --print-architecture) stable main" | \
+        sudo tee /etc/apt/sources.list.d/1password.list && \
+        sudo mkdir -p /etc/debsig/policies/AC2D62742012EA22/ && \
+        curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol | \
+        sudo tee /etc/debsig/policies/AC2D62742012EA22/1password.pol && \
+        sudo mkdir -p /usr/share/debsig/keyrings/AC2D62742012EA22 && \
+        curl -sS https://downloads.1password.com/linux/keys/1password.asc | \
+        sudo gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg && \
+        sudo apt update && sudo apt install -y 1password-cli
+    echo "1Password CLI installed successfully."
+else
+    echo "1Password CLI is already installed."
+fi
+
+# Install Tailscale
+if ! command -v tailscale &> /dev/null; then
+    echo "Installing Tailscale..."
+    curl -fsSL https://tailscale.com/install.sh | sh
+    echo "Tailscale installed successfully."
+else
+    echo "Tailscale is already installed."
+fi
+
 # Install Claude Code CLI
 if ! command -v claude &> /dev/null; then
     echo "Installing Claude Code CLI..."
@@ -59,4 +106,17 @@ if ! command -v claude &> /dev/null; then
     echo "Claude Code CLI installed successfully."
 else
     echo "Claude Code CLI is already installed."
+fi
+
+# ============================================================
+# Shell configuration (must be last)
+# ============================================================
+
+# Set zsh as default shell
+if [ "$SHELL" != "$(which zsh)" ]; then
+    echo "Setting zsh as default shell..."
+    chsh -s "$(which zsh)"
+    echo "zsh is now the default shell. Please log out and log back in for the change to take effect."
+else
+    echo "zsh is already the default shell."
 fi

@@ -100,6 +100,16 @@ if command -v volta &> /dev/null; then
     fi
 fi
 
+# Install Rust via rustup
+if ! command -v rustup &> /dev/null; then
+    echo "Installing Rust via rustup..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    source "$HOME/.cargo/env"
+    echo "Rust installed successfully."
+else
+    echo "Rust is already installed."
+fi
+
 # Install Claude Code CLI
 if ! command -v claude &> /dev/null; then
     echo "Installing Claude Code CLI..."

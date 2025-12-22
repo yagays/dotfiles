@@ -98,6 +98,28 @@ else
     echo "Tailscale is already installed."
 fi
 
+# Install Volta (Node.js version manager)
+if ! command -v volta &> /dev/null; then
+    echo "Installing Volta..."
+    curl https://get.volta.sh | bash
+    export VOLTA_HOME="$HOME/.volta"
+    export PATH="$VOLTA_HOME/bin:$PATH"
+    echo "Volta installed successfully."
+else
+    echo "Volta is already installed."
+fi
+
+# Install Node.js via Volta
+if command -v volta &> /dev/null; then
+    if ! volta list node 2>/dev/null | grep -q "node@"; then
+        echo "Installing Node.js (latest) via Volta..."
+        volta install node@latest
+        echo "Node.js installed successfully."
+    else
+        echo "Node.js is already installed via Volta."
+    fi
+fi
+
 # Install Claude Code CLI
 if ! command -v claude &> /dev/null; then
     echo "Installing Claude Code CLI..."

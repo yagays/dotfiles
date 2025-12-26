@@ -31,6 +31,10 @@ if ! command -v unzip &> /dev/null; then
     PACKAGES="$PACKAGES unzip"
 fi
 
+if ! command -v make &> /dev/null; then
+    PACKAGES="$PACKAGES build-essential"
+fi
+
 if [ -n "$PACKAGES" ]; then
     echo "Installing:$PACKAGES"
     sudo apt update && sudo apt install -y $PACKAGES

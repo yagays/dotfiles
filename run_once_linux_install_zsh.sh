@@ -35,6 +35,10 @@ if ! command -v make &> /dev/null; then
     PACKAGES="$PACKAGES build-essential"
 fi
 
+if ! systemctl is-active --quiet ssh &> /dev/null; then
+    PACKAGES="$PACKAGES openssh-server"
+fi
+
 if [ -n "$PACKAGES" ]; then
     echo "Installing:$PACKAGES"
     sudo apt update && sudo apt install -y $PACKAGES

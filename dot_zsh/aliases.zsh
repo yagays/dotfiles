@@ -30,7 +30,6 @@ alias pr='poetry run'
 alias pri='poetry run ipython'
 alias prodigy="python -m prodigy"
 alias t='tmux attach || tmux new'
-alias sed='gsed'
 alias cc="claude"
 alias yolo="claude --dangerously-skip-permissions"
 alias gl='git com && git pl'

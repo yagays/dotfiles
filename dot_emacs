@@ -153,7 +153,10 @@
     (treemacs-project-follow-mode t)
 
     ;; treemacsバッファで行を折り返さない
-    (add-hook 'treemacs-mode-hook (lambda () (setq truncate-lines t))))
+    (add-hook 'treemacs-mode-hook (lambda () (setq truncate-lines t)))
+
+    ;; treemacsバッファ内でのキーバインド
+    (define-key treemacs-mode-map (kbd "b") 'my-treemacs-collapse-all-but-root))
   :init
   ;; treemacsを開いたときに現在のディレクトリを追加する関数
   (defun my-treemacs-add-and-display-current-directory ()
@@ -167,6 +170,23 @@
         (treemacs--find-workspace))
       (unless (treemacs-is-path current-dir :in-workspace)
         (treemacs-do-add-project-to-workspace current-dir))))
+
+  ;; ルートの第一階層以外を全て閉じる関数
+  (defun my-treemacs-collapse-all-but-root ()
+    "Collapse all projects and then expand only the root level."
+    (interactive)
+    (let ((projects (treemacs-workspace->projects (treemacs-current-workspace))))
+      ;; まず全て閉じる
+      (treemacs-collapse-all-projects)
+      ;; 各プロジェクトのルートを開き直す
+      (dolist (project projects)
+        (save-excursion
+          (goto-char (point-min))
+          (when (search-forward (treemacs-project->name project) nil t)
+            (beginning-of-line)
+            (when-let ((btn (treemacs-current-button)))
+              (when (eq (treemacs-button-get btn :state) 'root-node-closed)
+                (treemacs-toggle-node))))))))
   :bind
   (:map global-map
         ("M-0"       . treemacs-select-window)
@@ -187,6 +207,27 @@
   :after treemacs
   :config
   (treemacs-load-theme "nerd-icons"))
+
+;; Emacs起動時にtreemacsを開く
+(add-hook 'emacs-startup-hook #'my-treemacs-add-and-display-current-directory)
+
+;;==================================================
+;; Git差分表示設定
+;;==================================================
+
+;; diff-hl - Git変更行を左端に色で表示
+(use-package diff-hl
+  :ensure t
+  :config
+  ;; 全てのファイルバッファで有効化
+  (global-diff-hl-mode)
+  ;; フリンジ（左端）に表示
+  (diff-hl-flydiff-mode)
+  ;; treemacsとの統合
+  (diff-hl-dired-mode)
+  ;; magit使用時に自動更新
+  (add-hook 'magit-pre-refresh-hook 'diff-hl-magit-pre-refresh)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
 ;;==================================================
 ;; テーマ設定

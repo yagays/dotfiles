@@ -19,6 +19,10 @@ if ! command -v fzf &> /dev/null; then
     PACKAGES="$PACKAGES fzf"
 fi
 
+if ! command -v fd &> /dev/null && ! command -v fdfind &> /dev/null; then
+    PACKAGES="$PACKAGES fd-find"
+fi
+
 if ! command -v tig &> /dev/null; then
     PACKAGES="$PACKAGES tig"
 fi

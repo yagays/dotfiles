@@ -37,6 +37,7 @@ BREW_PACKAGES=(
     awscli
     chezmoi
     emacs
+    fd
     fzf
     gh
     ghq

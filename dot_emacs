@@ -54,3 +54,208 @@
 
 ;;カギ括弧の両端をハイライト
 (show-paren-mode 1)
+
+;;==================================================
+;; Elpaca パッケージマネージャー
+;;==================================================
+
+(defvar elpaca-installer-version 0.11)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1 :inherit ignore
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (<= emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
+
+;; use-package のサポート
+(elpaca elpaca-use-package
+  (elpaca-use-package-mode))
+
+;; Elpacaのキューを処理
+(elpaca-wait)
+
+;;==================================================
+;; treemacs設定
+;;==================================================
+
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   3
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   'simple
+          treemacs-file-event-delay                2000
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-hide-dot-git-directory          t
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-no-delete-other-windows         t
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-space-between-root-nodes        t
+          treemacs-width                           35
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+    (treemacs-project-follow-mode t)
+
+    ;; treemacsバッファで行を折り返さない
+    (add-hook 'treemacs-mode-hook (lambda () (setq truncate-lines t))))
+  :init
+  ;; treemacsを開いたときに現在のディレクトリを追加する関数
+  (defun my-treemacs-add-and-display-current-directory ()
+    "Open treemacs and add current directory if not already present."
+    (interactive)
+    (let ((current-dir (or (when (buffer-file-name)
+                             (file-name-directory (buffer-file-name)))
+                           default-directory)))
+      (treemacs)
+      (unless (treemacs-current-workspace)
+        (treemacs--find-workspace))
+      (unless (treemacs-is-path current-dir :in-workspace)
+        (treemacs-do-add-project-to-workspace current-dir))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . my-treemacs-add-and-display-current-directory)
+        ("C-x t d"   . treemacs-select-directory)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+;; nerd-icons
+(use-package nerd-icons
+  :ensure t)
+
+;; treemacs-nerd-icons
+(use-package treemacs-nerd-icons
+  :ensure t
+  :after treemacs
+  :config
+  (treemacs-load-theme "nerd-icons"))
+
+;;==================================================
+;; テーマ設定
+;;==================================================
+
+;; doom-themes (VS Code Dark Modern風)
+(use-package doom-themes
+  :ensure t
+  :config
+  ;; グローバル設定
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-dark+ t)
+
+  ;; org-modeのテーマ設定
+  (doom-themes-org-config))
+
+;;==================================================
+;; ファジーファインダー設定 (fzf的)
+;;==================================================
+
+;; vertico - ミニバッファ補完UI
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode)
+  :custom
+  (vertico-count 20)  ;; 表示する候補数を増やす
+  (vertico-cycle t))  ;; 最後の候補から最初に戻る
+
+;; orderless - ファジーマッチング
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles partial-completion)))))
+
+;; consult - 検索・ナビゲーション強化
+(use-package consult
+  :ensure t
+  :bind (("C-x b" . consult-buffer)
+         ("C-x C-f" . consult-fd)  ;; fdを使用（高速）
+         ("C-c f" . consult-find)
+         ("C-c g" . consult-ripgrep)
+         ("C-c l" . consult-line))
+  :custom
+  ;; プレビューの遅延を短縮
+  (consult-preview-key 'any)
+  :config
+  ;; fdコマンドの最適化オプション
+  (setq consult-fd-args '((if (executable-find "fdfind") "fdfind" "fd")
+                          "--color=never"
+                          "--full-path"
+                          "--hidden"
+                          "--exclude" ".git"
+                          "--exclude" "node_modules"
+                          "--exclude" ".cache"))
+  ;; findコマンドのフォールバック設定
+  (setq consult-find-args "find . -not ( -path */node_modules/* -prune ) -not ( -path */.git/* -prune ) -not ( -path */.cache/* -prune )"))
+
+;; marginalia - 補完候補に追加情報を表示
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
+
+;; 検索履歴を保存して高速化
+(use-package savehist
+  :ensure nil  ;; built-in
+  :init
+  (savehist-mode))

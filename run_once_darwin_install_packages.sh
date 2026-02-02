@@ -80,15 +80,15 @@ if command -v gh &> /dev/null && ! gh auth status &> /dev/null; then
 fi
 
 # Install Volta (Node.js version manager)
-if ! command -v volta &> /dev/null; then
-    echo "Installing Volta..."
-    curl https://get.volta.sh | bash
-    export VOLTA_HOME="$HOME/.volta"
-    export PATH="$VOLTA_HOME/bin:$PATH"
-    echo "Volta installed successfully."
-else
-    echo "Volta is already installed."
-fi
+# if ! command -v volta &> /dev/null; then
+#     echo "Installing Volta..."
+#     curl https://get.volta.sh | bash
+#     export VOLTA_HOME="$HOME/.volta"
+#     export PATH="$VOLTA_HOME/bin:$PATH"
+#     echo "Volta installed successfully."
+# else
+#     echo "Volta is already installed."
+# fi
 
 # Install Node.js via Volta
 if command -v volta &> /dev/null; then

@@ -64,6 +64,22 @@ for package in "${BREW_PACKAGES[@]}"; do
     fi
 done
 
+# Cask packages to install via brew
+BREW_CASK_PACKAGES=(
+    font-hack-nerd-font
+)
+
+# Install cask packages
+echo "Installing brew cask packages..."
+for package in "${BREW_CASK_PACKAGES[@]}"; do
+    if ! brew list --cask "$package" &> /dev/null; then
+        echo "Installing $package..."
+        brew install --cask "$package"
+    else
+        echo "$package is already installed."
+    fi
+done
+
 # Install uv (Python package manager)
 if ! command -v uv &> /dev/null; then
     echo "Installing uv..."
@@ -79,26 +95,21 @@ if command -v gh &> /dev/null && ! gh auth status &> /dev/null; then
     gh auth login
 fi
 
-# Install Volta (Node.js version manager)
-# if ! command -v volta &> /dev/null; then
-#     echo "Installing Volta..."
-#     curl https://get.volta.sh | bash
-#     export VOLTA_HOME="$HOME/.volta"
-#     export PATH="$VOLTA_HOME/bin:$PATH"
-#     echo "Volta installed successfully."
-# else
-#     echo "Volta is already installed."
-# fi
+# Install mise (dev tool manager)
+if ! command -v mise &> /dev/null; then
+    echo "Installing mise..."
+    curl https://mise.run | sh
+    export PATH="$HOME/.local/bin:$PATH"
+    echo "mise installed successfully."
+else
+    echo "mise is already installed."
+fi
 
-# Install Node.js via Volta
-if command -v volta &> /dev/null; then
-    if ! volta list node 2>/dev/null | grep -q "node@"; then
-        echo "Installing Node.js (latest) via Volta..."
-        volta install node@latest
-        echo "Node.js installed successfully."
-    else
-        echo "Node.js is already installed via Volta."
-    fi
+# Install Node.js via mise
+if command -v mise &> /dev/null; then
+    echo "Installing Node.js (latest) via mise..."
+    mise use -g node@latest
+    echo "Node.js installed successfully via mise."
 fi
 
 # Install Rust via rustup

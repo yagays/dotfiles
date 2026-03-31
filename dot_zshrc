@@ -10,6 +10,7 @@
 [ -f "$HOME/.zsh/aliases.zsh" ] && source "$HOME/.zsh/aliases.zsh"
 [ -f "$HOME/.zsh/functions.zsh" ] && source "$HOME/.zsh/functions.zsh"
 [ -f "$HOME/.zsh/claude.zsh" ] && source "$HOME/.zsh/claude.zsh"
+[ -f "$HOME/.zsh/mise.zsh" ] && source "$HOME/.zsh/mise.zsh"
 
 # Load local machine-specific settings (not managed by chezmoi)
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"

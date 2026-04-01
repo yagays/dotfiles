@@ -7,7 +7,6 @@
     "OTEL_EXPORTER_OTLP_ENDPOINT": "http://bernese:4317",
     "OTEL_RESOURCE_ATTRIBUTES": "host.name={{ .chezmoi.hostname }}"
   },
-  "alwaysThinkingEnabled": true,
   "permissions": {
     "allow": [
       "List(*)",
@@ -116,16 +115,16 @@
       "Bash(rm -rf $HOME:*)",
       "Bash(rm -rf ~/.ssh*)",
       "Bash(rm -rf ~/.config*)"
-    ],
-    "defaultMode": "auto"
+    ]
   },
-  "model": "opus",
-  "enabledPlugins": {},
-  "skipAutoPermissionPrompt": true,
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
-    "command": "{{ .chezmoi.homeDir }}/.claude/statusline.sh",
+    "command": "/Users/yag_ays/.claude/statusline.sh",
     "padding": 0
   },
-  "language": "日本語"
+  "enabledPlugins": {},
+  "language": "日本語",
+  "alwaysThinkingEnabled": true,
+  "skipAutoPermissionPrompt": true
 }

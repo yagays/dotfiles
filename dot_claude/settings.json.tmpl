@@ -117,14 +117,20 @@
       "Bash(rm -rf ~/.config*)"
     ]
   },
+  "sandbox": {
+    "excludedCommands": [
+      "gh *"
+    ]
+  },
   "model": "opus[1m]",
   "statusLine": {
     "type": "command",
-    "command": "/Users/yag_ays/.claude/statusline.sh",
+    "command": "{{ .chezmoi.homeDir }}/.claude/statusline.sh",
     "padding": 0
   },
   "enabledPlugins": {},
   "language": "日本語",
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "skipAutoPermissionPrompt": true
 }

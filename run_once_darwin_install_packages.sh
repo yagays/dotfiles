@@ -51,6 +51,7 @@ BREW_PACKAGES=(
     tmux
     tree
     wget
+    xh
 )
 
 # Install packages

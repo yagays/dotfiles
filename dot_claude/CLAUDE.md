@@ -33,3 +33,9 @@
 
 - すべて英語で書いてください
 - Conventional Commitsに従ってください
+
+### HTTPクライアント
+シェルからHTTPリクエストを行う際は、`curl` や `wget` の代わりに `xh` (https://github.com/ducaale/xh) を使用してください。
+
+- 例: `xh GET https://example.com/api`、`xh POST https://example.com/api key=value`
+- ただし、サードパーティ製インストールスクリプトが `curl ... | sh` 形式を要求する場合など、`xh` で代替できない場面ではこの限りではありません。

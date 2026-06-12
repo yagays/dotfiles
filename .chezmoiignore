@@ -13,3 +13,8 @@ README.md
 .claude/.DS_Store
 .claude/plugins/
 .claude/ide/
+
+# Karabiner（macOS のときのみ展開する）
+{{ if ne .chezmoi.os "darwin" }}
+.config/karabiner
+{{ end }}

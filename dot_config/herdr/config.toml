@@ -1,0 +1,82 @@
+# Herdr keybindings tuned for a tmux-style Ctrl-z prefix.
+
+[keys]
+prefix = "ctrl+z"
+
+# Help and app actions
+help = "prefix+?"
+settings = "prefix+s"
+detach = ["prefix+q", "prefix+ctrl+d"]
+reload_config = ["prefix+shift+r", "prefix+ctrl+r"]
+open_notification_target = "prefix+o"
+
+# Workspaces and agents
+workspace_picker = ["prefix+w", "prefix+ctrl+w", "prefix+ctrl+s", "prefix+ctrl+space"]
+goto = "prefix+g"
+new_workspace = ["prefix+shift+n", "prefix+alt+c"]
+new_worktree = "prefix+shift+g"
+open_worktree = "prefix+shift+o"
+remove_worktree = "prefix+alt+d"
+rename_workspace = "prefix+shift+w"
+close_workspace = "prefix+shift+d"
+previous_workspace = "prefix+alt+p"
+next_workspace = "prefix+alt+n"
+previous_agent = "prefix+alt+up"
+next_agent = "prefix+alt+down"
+focus_agent = "prefix+alt+1..9"
+remote_image_paste = "ctrl+v"
+
+# Tabs
+new_tab = ["prefix+c", "prefix+ctrl+c"]
+rename_tab = "prefix+shift+t"
+previous_tab = ["prefix+p", "prefix+ctrl+p"]
+next_tab = ["prefix+n", "prefix+ctrl+n"]
+switch_tab = "prefix+1..9"
+switch_workspace = "prefix+shift+1..9"
+close_tab = "prefix+shift+x"
+
+# Panes and scrollback
+rename_pane = "prefix+shift+p"
+edit_scrollback = "prefix+e"
+copy_mode = ["prefix+[", "prefix+ctrl+["]
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+swap_pane_left = "prefix+shift+h"
+swap_pane_down = "prefix+shift+j"
+swap_pane_up = "prefix+shift+k"
+swap_pane_right = "prefix+shift+l"
+cycle_pane_next = ["prefix+tab", "prefix+ctrl+o"]
+cycle_pane_previous = "prefix+shift+tab"
+last_pane = "prefix+ctrl+a"
+split_vertical = "prefix+v"
+split_horizontal = "prefix+minus"
+close_pane = "prefix+x"
+zoom = "prefix+z"
+resize_mode = "prefix+r"
+toggle_sidebar = "prefix+b"
+
+# Navigate-mode movement
+navigate_workspace_up = ["up", "ctrl+p"]
+navigate_workspace_down = ["down", "ctrl+n"]
+navigate_pane_left = "h"
+navigate_pane_down = "j"
+navigate_pane_up = "k"
+navigate_pane_right = "l"
+
+[ui]
+mouse_capture = true
+mouse_scroll_lines = 3
+prompt_new_tab_name = false
+agent_panel_sort = "spaces"
+
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 1
+
+[experimental]
+pane_history = true
+
+[advanced]
+scrollback_limit_bytes = 50000000

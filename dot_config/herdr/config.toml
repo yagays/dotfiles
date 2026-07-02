@@ -37,7 +37,7 @@ close_tab = "prefix+shift+x"
 
 # Panes and scrollback
 rename_pane = "prefix+shift+p"
-edit_scrollback = "prefix+e"
+edit_scrollback = ["prefix+e", "prefix+/", "prefix+ctrl+/"]
 copy_mode = ["prefix+[", "prefix+ctrl+["]
 focus_pane_left = "prefix+h"
 focus_pane_down = "prefix+j"

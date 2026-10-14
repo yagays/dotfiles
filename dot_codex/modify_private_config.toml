@@ -1,0 +1,31 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := fromToml .chezmoi.stdin -}}
+{{- $changed := false -}}
+{{- if ne (get $config "approval_policy" | toString) "on-request" -}}
+{{- $config = setValueAtPath "approval_policy" "on-request" $config -}}
+{{- $changed = true -}}
+{{- end -}}
+{{- if ne (get $config "approvals_reviewer") "auto_review" -}}
+{{- $config = setValueAtPath "approvals_reviewer" "auto_review" $config -}}
+{{- $changed = true -}}
+{{- end -}}
+{{- $policy := includeTemplate "codex-auto-review.md" . | trim -}}
+{{- $review := get $config "auto_review" | default dict -}}
+{{- if ne (get $review "extra_policy") $policy -}}
+{{- $config = setValueAtPath "auto_review.extra_policy" $policy $config -}}
+{{- $changed = true -}}
+{{- end -}}
+{{- $servers := get $config "mcp_servers" | default dict -}}
+{{- $playwright := get $servers "playwright" | default dict -}}
+{{- if ne (get $playwright "default_tools_approval_mode") "approve" -}}
+{{- if not (hasKey $servers "playwright") -}}
+{{- $config = setValueAtPath "mcp_servers.playwright" (dict "command" "npx" "args" (list "@playwright/mcp@latest")) $config -}}
+{{- end -}}
+{{- $config = setValueAtPath "mcp_servers.playwright.default_tools_approval_mode" "approve" $config -}}
+{{- $changed = true -}}
+{{- end -}}
+{{- if $changed -}}
+{{- $config | toToml -}}
+{{- else -}}
+{{- .chezmoi.stdin -}}
+{{- end -}}

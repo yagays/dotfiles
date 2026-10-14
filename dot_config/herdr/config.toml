@@ -1,3 +1,5 @@
+onboarding = false
+
 # Herdr keybindings tuned for a tmux-style Ctrl-z prefix.
 
 [keys]
@@ -37,7 +39,7 @@ close_tab = "prefix+shift+x"
 
 # Panes and scrollback
 rename_pane = "prefix+shift+p"
-edit_scrollback = ["prefix+e", "prefix+/", "prefix+ctrl+/"]
+edit_scrollback = "prefix+e"
 copy_mode = ["prefix+[", "prefix+ctrl+["]
 focus_pane_left = "prefix+h"
 focus_pane_down = "prefix+j"
@@ -64,6 +66,21 @@ navigate_pane_left = "h"
 navigate_pane_down = "j"
 navigate_pane_up = "k"
 navigate_pane_right = "l"
+
+[[keys.command]]
+key = "prefix+ctrl+t"
+type = "pane"
+command = "tig"
+description = "open tig"
+
+# herdr-file-viewer: prefix+ctrl+f で popup 起動
+[[keys.command]]
+key = "prefix+ctrl+f"
+type = "popup"
+description = "File Viewer"
+width = "90%"
+height = "90%"
+command = '''PLUGIN_DIR="$(herdr plugin list --json | jq -r '.result.plugins[] | select(.plugin_id=="herdr-file-viewer") | .plugin_root')" && CONFIG_DIR="$(herdr plugin config-dir herdr-file-viewer)" && HERDR_PLUGIN_CONFIG_DIR="$CONFIG_DIR" exec "$PLUGIN_DIR/target/release/herdr-file-viewer"'''
 
 [ui]
 mouse_capture = true

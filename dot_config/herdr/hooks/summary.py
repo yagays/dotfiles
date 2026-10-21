@@ -12,6 +12,9 @@ import unicodedata
 
 
 SOURCE = "dotfiles:summary"
+# Herdr trims whitespace and drops empty rows. Braille blank is a blank glyph
+# that survives normalization, keeping both configured summary rows visible.
+BLANK_LINE = "\u2800"
 LINE_WIDTH = 20
 MAX_WIDTH = LINE_WIDTH * 2 - 1  # Allow one unused column before a wide character wraps.
 MAX_INPUT = 2000
@@ -201,17 +204,16 @@ def report(pane_id, sequence, title=None):
         os.environ.get("HERDR_BIN_PATH") or "herdr", "pane", "report-metadata", pane_id,
         "--source", SOURCE, "--seq", str(sequence),
     ]
+    first, second = split_title(title or "")
     if title:
-        first, second = split_title(title)
-        command += [
-            "--token", "summary=" + title,
-            "--token", "summary_line1=" + first,
-            "--token", "summary_line2=" + second,
-            "--ttl-ms", "86400000",
-        ]
+        command += ["--token", "summary=" + title]
     else:
-        for token in ("summary", "summary_line1", "summary_line2"):
-            command += ["--clear-token", token]
+        command += ["--clear-token", "summary"]
+    # Keep the row tokens until the pane closes; expiry would collapse the rows.
+    command += [
+        "--token", "summary_line1=" + (first or BLANK_LINE),
+        "--token", "summary_line2=" + (second or BLANK_LINE),
+    ]
     subprocess.run(command, capture_output=True, timeout=2, check=True)
 
 
@@ -238,14 +240,18 @@ def main():
             return 0
         pane_id = resolve_pane_id(payload, sys.argv[1])
         sequence = time.time_ns()
-        # Reserve this sequence before LLM work so older completions cannot win.
-        report(pane_id, sequence)
         if event == "UserPromptSubmit":
+            pane = herdr_json("pane", "get", pane_id)["pane"]
+            previous = pane.get("tokens", {}).get("summary")
+            # Reserve this sequence while retaining the previous title. Older
+            # completions cannot win, and a slow or failed LLM call cannot flicker.
+            report(pane_id, sequence, previous)
             title = generate_title(payload, sys.argv[1])
             if title:
                 report(pane_id, sequence + 1, title)
                 log_event("updated", pane_id=pane_id)
         else:
+            report(pane_id, sequence)
             log_event("cleared", pane_id=pane_id)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         # A missing CLI, expired login, or unavailable server must not block work.

@@ -17,14 +17,14 @@ spec.loader.exec_module(summary)
 
 
 class SummaryTests(unittest.TestCase):
-    def invoke(self, payload, backend="codex", environment=None):
+    def invoke(self, payload, backend="codex", environment=None, tokens=None):
         env = {
             "HERDR_ENV": "1", "HERDR_PANE_ID": "w1:p2",
             "HERDR_SOCKET_PATH": "/tmp/herdr-test.sock",
         }
         if environment is not None:
             env = environment
-        with patch.dict(os.environ, env, clear=True), patch.object(sys, "argv", [str(SCRIPT), backend]), patch.object(sys, "stdin", io.StringIO(json.dumps(payload))), patch.object(summary, "log_event"), patch.object(summary, "resolve_pane_id", return_value=env.get("HERDR_PANE_ID")):
+        with patch.dict(os.environ, env, clear=True), patch.object(sys, "argv", [str(SCRIPT), backend]), patch.object(sys, "stdin", io.StringIO(json.dumps(payload))), patch.object(summary, "log_event"), patch.object(summary, "resolve_pane_id", return_value=env.get("HERDR_PANE_ID")), patch.object(summary, "herdr_json", return_value={"pane": {"tokens": tokens or {}}}):
             return summary.main()
 
     def test_prompt_reports_a_title_to_its_own_pane(self):
@@ -34,6 +34,34 @@ class SummaryTests(unittest.TestCase):
         clear, update = report.call_args_list
         self.assertEqual(clear.args[0], "w1:p2")
         self.assertEqual(update.args, ("w1:p2", clear.args[1] + 1, "認証エラーの調査"))
+
+    def test_previous_summary_stays_visible_until_replacement_is_ready(self):
+        with patch.object(summary, "report") as report:
+            def generate(*args):
+                self.assertEqual(report.call_count, 1)
+                self.assertEqual(report.call_args.args[2], "前の作業要約")
+                return "新しい作業要約"
+
+            with patch.object(summary, "generate_title", side_effect=generate):
+                self.invoke({"hook_event_name": "UserPromptSubmit", "prompt": "次の作業"}, tokens={"summary": "前の作業要約"})
+        self.assertEqual(report.call_args.args[2], "新しい作業要約")
+
+    def test_failed_generation_keeps_the_previous_summary(self):
+        with patch.object(summary, "report") as report, patch.object(summary, "generate_title", side_effect=subprocess.TimeoutExpired("codex", 45)), patch.object(sys, "stderr", io.StringIO()):
+            self.invoke({"hook_event_name": "UserPromptSubmit", "prompt": "次の作業"}, tokens={"summary": "前の作業要約"})
+        self.assertEqual(report.call_count, 1)
+        self.assertEqual(report.call_args.args[2], "前の作業要約")
+
+    def test_short_and_empty_summaries_always_reserve_two_rows(self):
+        for title in (None, "短い要約"):
+            with self.subTest(title=title), patch.object(subprocess, "run") as run:
+                summary.report("w1:p2", 123, title)
+                command = run.call_args.args[0]
+                tokens = dict(command[i + 1].split("=", 1) for i, arg in enumerate(command) if arg == "--token")
+                self.assertEqual(tokens["summary_line1"], title or summary.BLANK_LINE)
+                self.assertEqual(tokens["summary_line2"], summary.BLANK_LINE)
+                self.assertTrue(tokens["summary_line2"].strip())
+                self.assertNotIn("--ttl-ms", command)
 
     def test_no_work_outside_herdr_or_for_subagents(self):
         with patch.object(summary, "report") as report, patch.object(summary, "generate_title") as generate:

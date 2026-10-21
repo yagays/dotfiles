@@ -113,11 +113,70 @@ class SummaryTests(unittest.TestCase):
                 transcript = Path(directory) / "session.jsonl"
                 transcript.write_text("invalid\n" + "\n".join(json.dumps(entry) for entry in entries))
                 payload = {"transcript_path": str(transcript), "prompt": "それで進めて"}
-                self.assertEqual(summary.request_history(payload, backend), ["認証の調査", "それで進めて"])
+                self.assertEqual(summary.request_history(payload, backend), {"initial_request": "認証の調査", "recent_requests": ["それで進めて"]})
 
     def test_large_requests_are_bounded_and_missing_history_is_optional(self):
         requests = summary.request_history({"transcript_path": "/nonexistent", "prompt": "あ" * 5000}, "codex")
-        self.assertLessEqual(sum(map(len, requests)), summary.MAX_INPUT)
+        self.assertEqual(requests, {"initial_request": "あ" * summary.MAX_INPUT, "recent_requests": []})
+
+    def test_opening_request_survives_long_sessions_and_recent_followups(self):
+        for backend in ("codex", "claude"):
+            def row(text):
+                if backend == "codex":
+                    return json.dumps({"type": "event_msg", "payload": {"type": "user_message", "message": text}})
+                return json.dumps({"type": "user", "message": {"content": text}})
+
+            with self.subTest(backend=backend), tempfile.TemporaryDirectory() as directory:
+                transcript = Path(directory) / "session.jsonl"
+                # The opening must remain available even outside the tail buffer.
+                transcript.write_text("\n".join([row("herdrの日本語作業要約を自動化したい"), json.dumps({"type": "assistant", "padding": "x" * 300000}), row("古い中間の依頼"), row("表示を調整して"), row("commitして"), row("コードを説明して")]))
+                history = summary.request_history({"transcript_path": str(transcript), "prompt": "pushして"}, backend)
+                self.assertEqual(history["initial_request"], "herdrの日本語作業要約を自動化したい")
+                self.assertEqual(history["recent_requests"], ["commitして", "コードを説明して", "pushして"])
+
+    def test_opening_and_new_requests_share_the_existing_input_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            transcript = Path(directory) / "session.jsonl"
+            transcript.write_text(json.dumps({"type": "event_msg", "payload": {"type": "user_message", "message": "最" * 5000}}))
+            history = summary.request_history({"transcript_path": str(transcript), "prompt": "新" * 5000}, "codex")
+        self.assertEqual(history["initial_request"], "最" * 1000)
+        self.assertEqual(history["recent_requests"], ["新" * 1000])
+
+    def test_opening_is_not_duplicated_on_the_first_prompt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            transcript = Path(directory) / "session.jsonl"
+            transcript.write_text(json.dumps({"type": "event_msg", "payload": {"type": "user_message", "message": "要約機能を作って"}}))
+            history = summary.request_history({"transcript_path": str(transcript), "prompt": "要約機能を作って"}, "codex")
+        self.assertEqual(history, {"initial_request": "要約機能を作って", "recent_requests": []})
+
+    def test_codex_wire_transcript_excludes_setup_and_reads_real_requests(self):
+        def wire(*texts):
+            return {"type": "response_item", "payload": {"type": "message", "role": "user", "content": [{"type": "input_text", "text": text} for text in texts]}}
+
+        entries = [
+            wire("# AGENTS.md instructions\nInjected settings", "<environment_context>cwd</environment_context>"),
+            wire("herdrで日本語要約を自動表示したい"),
+            wire("表示を2行にして"),
+            wire("<subagent_notification>Background result</subagent_notification>"),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            transcript = Path(directory) / "session.jsonl"
+            transcript.write_text("\n".join(json.dumps(entry) for entry in entries))
+            history = summary.request_history({"transcript_path": str(transcript), "prompt": "pushして"}, "codex")
+        self.assertEqual(history, {"initial_request": "herdrで日本語要約を自動表示したい", "recent_requests": ["表示を2行にして", "pushして"]})
+
+    def test_codex_event_and_wire_copies_do_not_duplicate_recent_requests(self):
+        entries = []
+        for text in ("要約を自動化したい", "表示を2行にして", "commitして"):
+            entries.extend([
+                {"type": "event_msg", "payload": {"type": "user_message", "message": text}},
+                {"type": "response_item", "payload": {"type": "message", "role": "user", "content": [{"type": "input_text", "text": text}]}},
+            ])
+        with tempfile.TemporaryDirectory() as directory:
+            transcript = Path(directory) / "session.jsonl"
+            transcript.write_text("\n".join(json.dumps(entry) for entry in entries))
+            history = summary.request_history({"transcript_path": str(transcript), "prompt": "pushして"}, "codex")
+        self.assertEqual(history, {"initial_request": "要約を自動化したい", "recent_requests": ["表示を2行にして", "commitして", "pushして"]})
 
     def test_title_has_no_controls_and_fits_a_japanese_sidebar(self):
         self.assertEqual(summary.normalize_title('\n「認証エラーの調査」\x00\n説明'), "認証エラーの調査")

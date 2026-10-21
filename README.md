@@ -11,8 +11,11 @@ the complete title for other consumers. Both rows stay allocated, including
 when the title fits on one line or no title has been generated yet. Empty rows
 use a braille blank glyph (U+2800), which survives Herdr's whitespace trimming.
 The shared script is `~/.config/herdr/hooks/summary.py` and needs only Python's
-standard library. This is a title for the latest request, updated per prompt;
-it does not track individual tool calls or infer live progress. Tab names stay
+standard library. The title describes the current overall task, anchored in
+the session's opening request and updated per prompt. Confirmation, explanation,
+commit, and push requests retain that broader purpose; an explicit switch to
+a different task takes precedence. It does not track individual tool calls or
+infer live progress. Tab names stay
 unchanged. Outside Herdr and in subagents, the hook does nothing.
 
 Both agents use `codex exec` with `gpt-6-luna` and the existing Codex login
@@ -20,7 +23,9 @@ for summarization. No additional API key or Claude login is required.
 Each submitted prompt makes one additional LLM call against the Codex account
 and its usage limits. Override the model with `HERDR_SUMMARY_MODEL` in the
 environment where you start the agent.
-Only the latest three human requests (up to 2,000 characters total) are used.
+The opening human request and up to three recent human requests are used,
+with the existing 2,000-character total budget. A long opening is capped at
+1,000 characters when recent context is present, leaving room for newer work.
 Tools, customizations, persistent sessions, and recursive hooks are disabled
 for title generation. While a replacement is generated, the previous title stays
 visible. Failures preserve it and do not block work.

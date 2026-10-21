@@ -1,0 +1,26 @@
+{{- $config := .config -}}
+{{- $hooks := get $config "hooks" | default dict -}}
+{{- $command := printf "python3 \"%s/.config/herdr/hooks/summary.py\" %s" .homeDir .backend -}}
+{{- range $event := list "SessionStart" "UserPromptSubmit" "SessionEnd" -}}
+{{- $entries := get $hooks $event | default list -}}
+{{- $found := false -}}
+{{- range $entry := $entries -}}
+{{- range $hook := get $entry "hooks" | default list -}}
+{{- if eq (get $hook "command") $command -}}
+{{- $found = true -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if not $found -}}
+{{- $handler := dict "type" "command" "command" $command "timeout" 5 -}}
+{{- if eq $event "SessionEnd" -}}
+{{- $handler = setValueAtPath "timeout" 3 $handler -}}
+{{- end -}}
+{{- if eq $event "UserPromptSubmit" -}}
+{{- $handler = setValueAtPath "async" true $handler -}}
+{{- $handler = setValueAtPath "timeout" 60 $handler -}}
+{{- end -}}
+{{- $hooks = setValueAtPath $event (append $entries (dict "hooks" (list $handler))) $hooks -}}
+{{- end -}}
+{{- end -}}
+{{- setValueAtPath "hooks" $hooks $config | toPrettyJson -}}

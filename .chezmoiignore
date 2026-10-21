@@ -1,5 +1,6 @@
 # リポジトリ専用ファイル（ホームディレクトリに展開しない）
 README.md
+tests/
 
 # Claude Code - ローカル専用ファイル
 .claude/projects/

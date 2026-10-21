@@ -2,6 +2,54 @@
 
 Managed by [chezmoi](https://www.chezmoi.io/).
 
+## Herdr agent summaries
+
+Claude Code and Codex `UserPromptSubmit` hooks generate a Japanese task title
+in the background and report it to Herdr's Agent sidebar. The title wraps into
+two 20-column rows via `$summary_line1` and `$summary_line2`; `$summary` retains
+the complete title for other consumers. An unused second row disappears.
+The shared script is `~/.config/herdr/hooks/summary.py` and needs only Python's
+standard library. This is a title for the latest request, updated per prompt;
+it does not track individual tool calls or infer live progress. Tab names stay
+unchanged. Outside Herdr and in subagents, the hook does nothing.
+
+Both agents use `codex exec` with `gpt-6-luna` and the existing Codex login
+for summarization. No additional API key or Claude login is required.
+Each submitted prompt makes one additional LLM call against the Codex account
+and its usage limits. Override the model with `HERDR_SUMMARY_MODEL` in the
+environment where you start the agent.
+Only the latest three human requests (up to 2,000 characters total) are used.
+Tools, customizations, persistent sessions, and recursive hooks are disabled
+for title generation. Failures leave the summary empty and do not block work.
+
+New requests and session boundaries clear the old summary. Out-of-order
+completions are ignored via Herdr metadata sequences; reported titles also
+expire after 24 hours as a fallback.
+Hook diagnostics are appended to `~/.cache/herdr/summary.log`; they contain
+event names, pane IDs, and outcomes, without request text or credentials.
+If a resumed CLI passes a stale pane ID, the hook identifies its own pane from
+process ancestry or a unique matching session argument, never from UI focus.
+
+Apply the integration with:
+
+```sh
+chezmoi apply ~/.config/herdr ~/.codex/hooks.json ~/.claude/settings.json
+```
+
+Restart the agent sessions afterward. Codex requires reviewing and trusting
+the new hook definitions through `/hooks` before it runs them. Existing Herdr
+session hooks and other local settings are preserved. Claude settings are now
+modified in place; `.chezmoitemplates/claude-settings.json.tmpl` supplies initial
+defaults only when no local settings exist.
+
+Run the offline checks with:
+
+```sh
+python3 -B -m unittest discover -s tests -v
+```
+
+Inspired by [sh1ma/herdr-auto-title](https://github.com/sh1ma/herdr-auto-title).
+
 ## Installation
 
 ```sh

@@ -88,6 +88,13 @@ mouse_scroll_lines = 3
 prompt_new_tab_name = false
 agent_panel_sort = "spaces"
 
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", "machine", "agent", "workspace", "tab"],
+  ["$summary_line1"],
+  ["$summary_line2"],
+]
+
 [ui.toast]
 delivery = "terminal"
 delay_seconds = 1

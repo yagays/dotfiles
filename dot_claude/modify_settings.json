@@ -1,0 +1,6 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $config := fromJson (.chezmoi.stdin | default "{}") -}}
+{{- if not $config -}}
+{{- $config = includeTemplate "claude-settings.json.tmpl" . | fromJson -}}
+{{- end -}}
+{{- includeTemplate "herdr-summary-hooks.json.tmpl" (dict "config" $config "homeDir" .chezmoi.homeDir "backend" "claude") -}}

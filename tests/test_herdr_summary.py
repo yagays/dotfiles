@@ -180,8 +180,26 @@ class SummaryTests(unittest.TestCase):
 
     def test_title_has_no_controls_and_fits_a_japanese_sidebar(self):
         self.assertEqual(summary.normalize_title('\n「認証エラーの調査」\x00\n説明'), "認証エラーの調査")
-        self.assertEqual(summary.normalize_title("あ" * 30), "あ" * 19)
+        self.assertEqual(summary.normalize_title("あ" * 30), "あ" * 20)
         self.assertEqual(summary.normalize_title("\n\x00"), "")
+
+    def test_twenty_japanese_characters_keep_the_final_character(self):
+        title = "エージェントの作業目的を日本語で要約表示"
+        self.assertEqual(summary.normalize_title(title), title)
+        self.assertEqual(summary.split_title(title), ["エージェントの作業目", "的を日本語で要約表示"])
+
+    def test_forty_ascii_columns_fit_without_a_reserved_margin(self):
+        title = "a" * 40
+        self.assertEqual(summary.normalize_title(title), title)
+        self.assertEqual(summary.split_title(title), ["a" * 20, "a" * 20])
+
+    def test_mixed_width_overflow_is_limited_by_actual_line_boundaries(self):
+        # The first row uses 19 columns; the next wide character wraps.
+        title = "a" + "あ" * 19 + "b"
+        normalized = summary.normalize_title(title)
+        self.assertEqual(normalized, "a" + "あ" * 19)
+        self.assertEqual(summary.split_title(title), ["a" + "あ" * 9, "あ" * 10])
+        self.assertEqual("".join(summary.split_title(normalized)), normalized)
 
     def test_summary_wraps_into_two_lines_without_losing_text(self):
         for title in ("日本語要約hookの動作確認", "あ" * 20, "短い要約", "a" + "あ" * 19):

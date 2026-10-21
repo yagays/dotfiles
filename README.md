@@ -6,7 +6,9 @@ Managed by [chezmoi](https://www.chezmoi.io/).
 
 Claude Code and Codex `UserPromptSubmit` hooks generate a Japanese task title
 in the background and report it to Herdr's Agent sidebar. The title wraps into
-two 20-column rows via `$summary_line1` and `$summary_line2`; `$summary` retains
+two 20-column rows via `$summary_line1` and `$summary_line2`. Titles are bounded
+by the actual row wrapping, so all 20 full-width Japanese characters fit; mixed
+Japanese and ASCII text is also measured per row. `$summary` retains
 the complete title for other consumers. Both rows stay allocated, including
 when the title fits on one line or no title has been generated yet. Empty rows
 use a braille blank glyph (U+2800), which survives Herdr's whitespace trimming.

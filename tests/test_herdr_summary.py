@@ -226,6 +226,45 @@ class SummaryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 summary.resolve_pane_id({}, "codex")
 
+    def test_new_codex_session_matches_its_native_name_in_the_same_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            database = Path(directory) / "state_5.sqlite"
+            with summary.sqlite3.connect(database) as connection:
+                connection.execute("CREATE TABLE threads (id TEXT, name TEXT, cwd TEXT)")
+                connection.execute("INSERT INTO threads VALUES (?, ?, ?)", ("fresh-session", "公式情報収集の改善", "/project/krill"))
+            connection.close()
+            agents = [
+                {"agent": "codex", "pane_id": "krill:p1", "terminal_title_stripped": "別の作業 | krill", "cwd": "/project/krill"},
+                {"agent": "codex", "pane_id": "krill:p2", "terminal_title_stripped": "公式情報収集の改善 | krill", "cwd": "/project/krill"},
+                {"agent": "codex", "pane_id": "other:p1", "terminal_title_stripped": "公式情報収集の改善 | other", "cwd": "/project/other"},
+                {"agent": "codex", "pane_id": "krill:p3", "terminal_title_stripped": "公式情報収集の改善追加 | krill", "cwd": "/project/krill"},
+            ]
+            with patch.dict(os.environ, {"CODEX_HOME": directory}):
+                self.assertEqual(summary.codex_named_panes({"session_id": "fresh-session"}, agents), {"krill:p2"})
+
+    def test_first_prompt_waits_for_its_native_title(self):
+        missing = subprocess.CalledProcessError(1, "herdr", stderr='{"error":{"code":"pane_not_found"}}')
+        agents = {"agents": [{"agent": "codex", "pane_id": "krill:p2"}]}
+        replies = [missing, agents, {"process_info": {"foreground_processes": [{"pid": 999, "argv": ["codex"]}]}}, agents]
+        with patch.dict(os.environ, {"HERDR_PANE_ID": "old:p1"}), patch.object(os, "getpid", return_value=300), patch.object(summary, "herdr_json", side_effect=replies), patch.object(subprocess, "run", return_value=subprocess.CompletedProcess("ps", 0, stdout="300 1\n1 0\n999 1\n")), patch.object(summary, "codex_named_panes", side_effect=[set(), {"krill:p2"}]), patch.object(summary.time, "sleep") as sleep, patch.object(summary, "log_event"):
+            self.assertEqual(summary.resolve_pane_id({"session_id": "fresh-session", "hook_event_name": "UserPromptSubmit"}, "codex"), "krill:p2")
+        sleep.assert_called_once_with(0.2)
+
+    def test_valid_but_unrelated_inherited_pane_id_does_not_win(self):
+        replies = [{"pane": {"pane_id": "wrong:p1"}}, {"agents": []}]
+        with patch.dict(os.environ, {"HERDR_PANE_ID": "wrong:p1"}), patch.object(summary, "herdr_json", side_effect=replies), patch.object(subprocess, "run", return_value=subprocess.CompletedProcess("ps", 0, stdout="")), patch.object(summary, "codex_named_panes", return_value={"krill:p2"}), patch.object(summary, "log_event"):
+            self.assertEqual(summary.resolve_pane_id({"session_id": "fresh-session"}, "codex"), "krill:p2")
+
+    def test_ambiguous_native_titles_are_never_assigned_to_a_pane(self):
+        replies = [{"pane": {}}, {"agents": []}]
+        with patch.dict(os.environ, {"HERDR_PANE_ID": "old:p1"}), patch.object(summary, "herdr_json", side_effect=replies), patch.object(subprocess, "run", return_value=subprocess.CompletedProcess("ps", 0, stdout="")), patch.object(summary, "codex_named_panes", return_value={"krill:p1", "krill:p2"}):
+            with self.assertRaises(ValueError):
+                summary.resolve_pane_id({"session_id": "fresh-session"}, "codex")
+
+    def test_missing_codex_session_metadata_is_a_safe_no_match(self):
+        with tempfile.TemporaryDirectory() as directory, patch.dict(os.environ, {"CODEX_HOME": directory}):
+            self.assertEqual(summary.codex_named_panes({"session_id": "unknown-session"}, []), set())
+
     def test_generators_keep_auth_but_disable_recursive_hooks_and_tools(self):
         for backend in ("codex", "claude"):
             def run(command, **kwargs):

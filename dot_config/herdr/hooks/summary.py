@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Report a short Japanese task title from Claude Code / Codex prompt hooks."""
 
+from contextlib import closing
 import json
 import os
 from pathlib import Path
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -161,11 +163,46 @@ def herdr_json(*arguments):
     return json.loads(result.stdout)["result"]
 
 
+def codex_named_panes(payload, agents):
+    """Match a daemon-hosted session by its exact native name and directory."""
+    session_id = payload.get("session_id")
+    if not session_id:
+        return set()
+    home = Path(os.environ.get("CODEX_HOME") or Path.home() / ".codex")
+    databases = [p for p in home.glob("state_*.sqlite") if p.stem[6:].isdigit()]
+    for database in sorted(databases, key=lambda p: int(p.stem[6:]), reverse=True):
+        try:
+            with closing(sqlite3.connect(database.resolve().as_uri() + "?mode=ro", uri=True, timeout=0.1)) as connection:
+                row = connection.execute("SELECT name, cwd FROM threads WHERE id = ?", (session_id,)).fetchone()
+        except sqlite3.Error:
+            continue
+        if row is None:
+            continue
+        name, cwd = row
+        if not name or not cwd:
+            return set()
+        directory = Path(cwd).resolve()
+        matches = set()
+        for agent in agents:
+            if agent.get("agent") != "codex":
+                continue
+            title = agent.get("terminal_title_stripped") or ""
+            if title != name and not title.startswith(name + " | "):
+                continue
+            locations = (agent.get("cwd"), agent.get("foreground_cwd"))
+            if any(location and Path(location).resolve() == directory for location in locations):
+                matches.add(agent["pane_id"])
+        return matches
+    return set()
+
+
 def resolve_pane_id(payload, backend):
     pane_id = os.environ["HERDR_PANE_ID"]
     try:
         herdr_json("pane", "get", pane_id)
-        return pane_id
+        # A shared Codex daemon may inherit another still-live pane's ID too.
+        if backend != "codex":
+            return pane_id
     except subprocess.CalledProcessError as error:
         # Resumed Codex hooks can inherit an old ID from their shell snapshot.
         if json.loads(error.stderr).get("error", {}).get("code") != "pane_not_found":
@@ -185,7 +222,8 @@ def resolve_pane_id(payload, backend):
         ancestors.add(pid)
         pid = parents.get(pid, 0)
     by_process, by_session = [], []
-    for agent in herdr_json("agent", "list").get("agents", []):
+    agents = herdr_json("agent", "list").get("agents", [])
+    for agent in agents:
         if agent.get("agent") != backend:
             continue
         candidate = agent["pane_id"]
@@ -196,10 +234,23 @@ def resolve_pane_id(payload, backend):
             if payload.get("session_id") and payload["session_id"] in process.get("argv", []):
                 by_session.append(candidate)
     matches = set(by_process or by_session)
+    method = "process" if by_process else "session_argument"
+    if not matches and backend == "codex" and payload.get("session_id"):
+        # Native auto titles can arrive just after the first prompt. Only the
+        # background prompt hook waits; lifecycle hooks stay within their budget.
+        attempts = 20 if payload.get("hook_event_name") == "UserPromptSubmit" else 1
+        for attempt in range(attempts):
+            if attempt:
+                time.sleep(0.2)
+                agents = herdr_json("agent", "list").get("agents", [])
+            matches = codex_named_panes(payload, agents)
+            if matches:
+                method = "native_session_name"
+                break
     if len(matches) != 1:
         raise ValueError("Could not identify the calling pane uniquely")
     resolved = matches.pop()
-    log_event("pane_resolved", old_pane_id=pane_id, pane_id=resolved)
+    log_event("pane_resolved", old_pane_id=pane_id, pane_id=resolved, method=method)
     return resolved
 
 

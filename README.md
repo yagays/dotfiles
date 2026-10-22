@@ -39,6 +39,13 @@ Hook diagnostics are appended to `~/.cache/herdr/summary.log`; they contain
 event names, pane IDs, and outcomes, without request text or credentials.
 If a resumed CLI passes a stale pane ID, the hook identifies its own pane from
 process ancestry or a unique matching session argument, never from UI focus.
+New Codex sessions hosted by a shared daemon also match their exact native
+session name and working directory against Herdr's terminal titles. The hook
+reads only the requested session's name and directory from the local Codex
+`state_*.sqlite` database, opening it read-only. A background prompt hook waits
+up to about four seconds for an initial native title; ambiguous matches are
+never used. This fallback depends on Codex's local schema and title format;
+if either changes, it skips the update rather than choosing another pane.
 
 Apply the integration with:
 
